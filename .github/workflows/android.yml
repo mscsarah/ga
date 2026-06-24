@@ -17,7 +17,7 @@ on:
       - '.github/workflows/android.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -81,3 +81,17 @@ jobs:
           name: hikayat-aliraq-AAB
           path: out/hikayat-aliraq-release-unsigned.aab
           if-no-files-found: warn
+
+      # نشر النتائج كـ GitHub Release → رابط مباشر قابل للتنزيل من الهاتف
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-build-${{ github.run_number }}
+          name: حكايات العراق — Android (بناء ${{ github.run_number }})
+          body: |
+            تطبيق **حكايات العراق** لنظام Android.
+            - `hikayat-aliraq-debug.apk` ← ثبّته مباشرة على الهاتف (فعّل «مصادر غير معروفة»).
+            - `hikayat-aliraq-release-unsigned.aab` ← للرفع على Google Play (يُوقّع عبر Play App Signing).
+          files: |
+            out/hikayat-aliraq-debug.apk
+            out/hikayat-aliraq-release-unsigned.aab
