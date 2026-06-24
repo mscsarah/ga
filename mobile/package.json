@@ -1,0 +1,19 @@
+{
+  "name": "hikayat-iraq-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "تغليف منصة حكايات العراق كتطبيق Android عبر Capacitor",
+  "scripts": {
+    "copy:web": "node copy-web.mjs",
+    "sync": "npm run copy:web && cap sync android",
+    "build:apk": "npm run sync && cd android && ./gradlew assembleDebug",
+    "build:apk-release": "npm run sync && cd android && ./gradlew assembleRelease",
+    "build:aab": "npm run sync && cd android && ./gradlew bundleRelease",
+    "open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1"
+  }
+}
