@@ -16,10 +16,28 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            // يقرأ بيانات التوقيع من متغيّرات البيئة (آمن، عبر GitHub Secrets)
+            // ويرجع إلى المفتاح المرفق mobile/release.keystore كحلٍّ افتراضي.
+            def ksPath = System.getenv("KEYSTORE_PATH") ?: "$rootDir/../release.keystore"
+            def ksFile = file(ksPath)
+            if (ksFile.exists()) {
+                storeFile ksFile
+                storePassword System.getenv("KEYSTORE_PASSWORD") ?: "hikayat2026"
+                keyAlias System.getenv("KEY_ALIAS") ?: "hikayat"
+                keyPassword System.getenv("KEY_PASSWORD") ?: "hikayat2026"
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // وقّع نسخة الإصدار تلقائياً إن توفّر المفتاح
+            if (file(System.getenv("KEYSTORE_PATH") ?: "$rootDir/../release.keystore").exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

@@ -4,5 +4,6 @@ android/.gradle/
 android/app/build/
 android/build/
 android/capacitor-cordova-android-plugins/build/
+# نتجاهل أي keystore باستثناء مفتاح الإصدار المخصّص لهذا المشروع
 *.keystore
-!debug.keystore
+!release.keystore

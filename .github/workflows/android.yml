@@ -56,30 +56,36 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Build release AAB (unsigned)
+      - name: Build SIGNED release APK + AAB
         working-directory: mobile/android
-        run: ./gradlew bundleRelease --no-daemon
-        continue-on-error: true
+        env:
+          # عند ضبط هذه الأسرار في إعدادات المستودع تُستخدم بدل المفتاح المرفق (أكثر أماناً)
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          ./gradlew assembleRelease bundleRelease --no-daemon
 
       - name: Collect outputs
         run: |
           mkdir -p out
           cp mobile/android/app/build/outputs/apk/debug/app-debug.apk out/hikayat-aliraq-debug.apk || true
-          cp mobile/android/app/build/outputs/bundle/release/app-release.aab out/hikayat-aliraq-release-unsigned.aab || true
+          cp mobile/android/app/build/outputs/apk/release/app-release.apk out/hikayat-aliraq-release-signed.apk || true
+          cp mobile/android/app/build/outputs/bundle/release/app-release.aab out/hikayat-aliraq-release-signed.aab || true
           ls -la out
 
       - name: Upload APK (installable on phone)
         uses: actions/upload-artifact@v4
         with:
           name: hikayat-aliraq-APK
-          path: out/hikayat-aliraq-debug.apk
+          path: out/hikayat-aliraq-release-signed.apk
           if-no-files-found: error
 
       - name: Upload AAB (for Play Store)
         uses: actions/upload-artifact@v4
         with:
           name: hikayat-aliraq-AAB
-          path: out/hikayat-aliraq-release-unsigned.aab
+          path: out/hikayat-aliraq-release-signed.aab
           if-no-files-found: warn
 
       # نشر النتائج كـ GitHub Release → رابط مباشر قابل للتنزيل من الهاتف
@@ -89,9 +95,11 @@ jobs:
           tag_name: android-build-${{ github.run_number }}
           name: حكايات العراق — Android (بناء ${{ github.run_number }})
           body: |
-            تطبيق **حكايات العراق** لنظام Android.
-            - `hikayat-aliraq-debug.apk` ← ثبّته مباشرة على الهاتف (فعّل «مصادر غير معروفة»).
-            - `hikayat-aliraq-release-unsigned.aab` ← للرفع على Google Play (يُوقّع عبر Play App Signing).
+            تطبيق **حكايات العراق** لنظام Android — نسخة **موقّعة** جاهزة.
+            - `hikayat-aliraq-release-signed.aab` ← ارفعه على **Google Play**.
+            - `hikayat-aliraq-release-signed.apk` ← ثبّته مباشرة على الهاتف (فعّل «مصادر غير معروفة»).
+            - `hikayat-aliraq-debug.apk` ← نسخة تجريبية للاختبار السريع.
           files: |
+            out/hikayat-aliraq-release-signed.aab
+            out/hikayat-aliraq-release-signed.apk
             out/hikayat-aliraq-debug.apk
-            out/hikayat-aliraq-release-unsigned.aab
